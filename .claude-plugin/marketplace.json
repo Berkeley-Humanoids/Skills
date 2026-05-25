@@ -1,0 +1,22 @@
+{
+    "name": "berkeley-humanoids-skills",
+    "owner": {
+      "name": "-T.K.-",
+      "email": "tk233.xyz@gmail.com"
+    },
+    "metadata": {
+      "description": "Berkeley Humanoids organization skills",
+      "version": "0.1.0"
+    },
+    "plugins": [
+      {
+        "name": "berkeley-humanoids-skills",
+        "description": "Berkeley Humanoids organization skills",
+        "source": "./",
+        "strict": false,
+        "skills": [
+          "./skills/robotics-conventions"
+        ]
+      }
+    ]
+  }
