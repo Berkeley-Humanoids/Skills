@@ -1,5 +1,5 @@
 ---
-name: pixi-workspace-interface
+name: pixi-workspace
 description: Use when creating, editing, or reviewing pixi.toml manifests, pixi tasks, workspace scripts (activate/doctor/canup), the hc CLI, or any Berkeley Humanoids pixi+ROS2 workspace (humanoid_control_ws, *-Deployment repos, the buildfarm manifest).
 ---
 
