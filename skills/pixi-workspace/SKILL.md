@@ -12,15 +12,10 @@ public walkthrough in `Humanoid-Control-Website/docs/how_to/use_pixi_tasks.md`;
 the full RFC is preserved in this skill's introducing PR
 (Berkeley-Humanoids/Skills#1).
 
-## The three levels
-
-1. **Lifecycle pixi tasks** — reserved names AND semantics, identical in
-   every workspace: `setup` (fetch sources; idempotent, cached), `build`
-   (default lane; chains `setup`), `test`, `clean` (wipe
-   `build/ install/ log/` only), `doctor` (health check).
+1. **Lifecycle pixi tasks** — reserved names AND semantics, identical
+   in every workspace (table below).
 2. **Product toolbox `hc`** — a packaged CLI on `PATH`
-   (`humanoid_control_cli`): `hc bus …`, `hc motor slider`,
-   `hc viz [viser|rerun]`, `hc viz urdf`, `hc calibrate`.
+   (`humanoid_control_cli`; table below).
 3. **Scenario pixi tasks** — reserved names, workspace-defined scope:
    `sim`, `real`, `policy` (+ at most one qualifier).
 
@@ -31,21 +26,62 @@ sibling-repo references. Needs root / mutates host state (CAN, kernel) →
 a `scripts/*.sh` run with explicit `sudo`, never a task. Rarely used →
 no alias; document the canonical `ros2 …` command.
 
-## Scenario naming
+## Level 1 — lifecycle tasks (must exist in every workspace)
+
+| Task | Meaning | Rules |
+|---|---|---|
+| `setup` | fetch/prepare sources beyond pixi itself (`vcs import`, fetch scripts) | idempotent and cached (canonical shape below); safe to re-run; chained by `build` |
+| `build` | build the workspace's default lane with colcon | `depends-on = ["setup"]`; style flags come from `config/colcon-defaults.yaml`, only semantic selection flags (`--packages-skip-regex`, `--packages-up-to`) appear inline |
+| `test` | run the workspace's tests, linters excluded | `colcon test … --ctest-args -LE linter`; omit only if the workspace truly has no tests |
+| `clean` | wipe the colcon overlay | exactly `rm -rf build install log`; never touches `src/` or `.pixi/` |
+| `doctor` | workspace health check (`scripts/doctor.sh`) | checks: workspace root, env active, `/opt/ros` contamination (hard fail), sources imported, overlay built + sourced, `hc` on `PATH`, `ROS_DOMAIN_ID`; warnings for fixable, non-zero for fatal |
+
+Day-one ritual is one command: `pixi run build` (pixi self-heals the
+env; `setup` is chained and cached), verified by `pixi run doctor`.
+
+Archetype-local extras are allowed (with descriptions), never required
+of other workspaces — dev workspace: `build-all`, `test-result`
+(singular, matches the colcon verb), `lint` (= `.githooks/pre-commit
+--all`), `check` (= `test` + `lint`), `gen-dds`, `test-dds`; buildfarm
+manifest: `setup` (hidden `_import` + `_overlay`), `package`, `publish`
+— the packaging verb is `package`, never `build*`.
+
+## Level 2 — `hc` toolbox verbs (standardized, packaged)
+
+| Verb | What it does |
+|---|---|
+| `hc bus ping` | single-actuator GetDeviceId ping — no Enable, safe on a powered robot |
+| `hc bus discover` | scan a CAN bus for Robstride device ids (read-only) |
+| `hc bus probe` | link probe: RTT/jitter (inert) or +lumped delay (PRBS torque) |
+| `hc bus probe-report` | RTT distribution + per-DoF lumped delay + plots |
+| `hc motor slider` | live MIT-mode slider GUI against one motor |
+| `hc viz` | live state viewer of a running robot (`viewer:=viser` default, `viewer:=rerun`) |
+| `hc viz viser` / `hc viz rerun` | the standalone live-viewer tools directly |
+| `hc viz urdf` | static URDF/kinematic inspector (sliders + RViz), no robot needed |
+| `hc calibrate` | calibration bringup; writes `calibration.yaml` |
+
+Every verb `execvp`s into the canonical `ros2 run` / `ros2 launch`
+command, so signals and trailing args pass straight through. Bare `hc`
+prints this menu. New invariant tool → new verb in
+`humanoid_control_cli`, never a per-workspace task alias
+(`robstride-ping`, `rerun-viz`, … are banned).
+
+## Level 3 — scenario naming
 
 - Grammar: `<scenario>[-<qualifier>]`, kebab-case, **at most one
   qualifier**, encoding only the primary task variant. All secondary
   parameters stay ROS launch arguments:
   - Right: `pixi run sim-piano robot:=prime policy:=latest`
   - Wrong: `pixi run sim-prime-piano-latest`
+- Reserved scenario words: `sim` (primary stack in simulation), `real`
+  (same, on hardware), `policy` (prepare + load the RL policy against a
+  running stack).
 - Unqualified = the workspace default (dev ws: Lite base bringup;
   a deployment ws: its full task stack — state the scope in the task
   `description`).
-- Never `launch-*` / `deploy-*` prefixes. Never per-tool task aliases
-  duplicating `hc` (`robstride-ping`, `rerun-viz`, …).
-- No task named `install`/`shell` (shadow pixi verbs) or `run`/`start`
-  (redundant next to the scenario vocabulary). The buildfarm packaging
-  verb is `package` — `build*` is reserved for colcon builds.
+- Never `launch-*` / `deploy-*` prefixes. No task named
+  `install`/`shell` (shadow pixi verbs) or `run`/`start` (redundant
+  next to the scenario vocabulary).
 
 ## Task authoring
 
@@ -86,8 +122,6 @@ fi
 - Colcon *style* flags (`--symlink-install`, compile-commands) go in
   `config/colcon-defaults.yaml` via `COLCON_DEFAULTS_FILE` in
   `[activation.env]`, so manual `colcon build` == `pixi run build`.
-  Semantic selection flags (`--packages-skip-regex`, `--packages-up-to`)
-  stay visible in the task string.
 - `[activation.env]` always sets `RCUTILS_COLORIZED_OUTPUT=1` + the
   console format; deployment workspaces pin their robot's
   `ROS_DOMAIN_ID`, the dev workspace leaves it unpinned.
@@ -97,8 +131,6 @@ fi
   environment; add features/environments only when dependencies
   genuinely diverge.
 - No rosdep, no apt — `pixi.toml` is the dependency source of truth.
-- `doctor` checks: workspace root, env active, `/opt/ros` contamination
-  (hard fail), sources present, overlay built + sourced, `hc` on PATH.
 
 ## Gotchas (verified the hard way)
 
@@ -106,7 +138,5 @@ fi
   location), never on `PATH`. To put a CLI on `PATH`, also install a
   shim via `data_files` `('bin', [...])` — colcon then emits a `path.sh`
   hook for the package.
-- Day-one ritual is one command: `pixi run build` (pixi self-heals the
-  env; `setup` is chained and cached). Verify with `pixi run doctor`.
-- README quickstarts lead with that ritual, then point at
+- README quickstarts lead with the one-command ritual, then point at
   `pixi task list` and `hc help` instead of duplicating command tables.
