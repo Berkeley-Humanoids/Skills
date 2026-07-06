@@ -1,46 +1,37 @@
 ---
 name: pixi-workspace
-description: Use when creating, editing, or reviewing pixi.toml manifests, pixi tasks, workspace scripts (activate/doctor/canup), the hc CLI, or any Berkeley Humanoids pixi+ROS2 workspace (humanoid_control_ws, *-Deployment repos, the buildfarm manifest).
+description: Use when creating, editing, or reviewing pixi.toml manifests, pixi tasks, workspace scripts (activate/doctor/canup), the hc CLI, or any Berkeley Humanoids pixi+ROS2 workspaces.
 ---
 
-# Pixi workspace interface
+# Pixi workspace guideline
 
 Every Berkeley Humanoids pixi workspace exposes the same three-level
-command interface. Ratified 2026-07-05; durable rationale lives in the
-dev tree's `AGENTS.md` ("Command interface (three levels)") and the
-public walkthrough in `Humanoid-Control-Website/docs/how_to/use_pixi_tasks.md`;
-the full RFC is preserved in this skill's introducing PR
-(Berkeley-Humanoids/Skills#1).
+command interface.
 
-1. **Lifecycle pixi tasks** — reserved names AND semantics, identical
-   in every workspace (table below).
-2. **Product toolbox `hc`** — a packaged CLI on `PATH`
-   (`humanoid_control_cli`; table below).
-3. **Scenario pixi tasks** — reserved names, workspace-defined scope:
-   `sim`, `real`, `policy` (+ at most one qualifier).
+1. **General ros2-pixi tasks** - standardized set of procedures for every ROS2-pixi workspace.
+2. **Product toolbox `hc`** - packaged CLI on `PATH` containing common robot utility helpers.
+3. **Scenario pixi tasks** - common workspace-defined tasks: `sim`, `real`, `policy`, `viz` etc.
 
-Sorting rule for new commands: **invariant meaning in every workspace →
-`hc` verb; workspace-dependent meaning → workspace task**. `hc` carries
-only the Lite product core + shared diagnostics — never Prime, piano, or
-sibling-repo references. Needs root / mutates host state (CAN, kernel) →
-a `scripts/*.sh` run with explicit `sudo`, never a task. Rarely used →
-no alias; document the canonical `ros2 …` command.
+Sorting rule for new commands: 
+invariant meaning in every workspace → `hc` verb.
+workspace-dependent meaning → workspace task.
+`hc` carries only the Lite product core + shared diagnostics.
+Needs root / mutates host state (CAN, kernel) → a `scripts/*.sh` run with explicit `sudo`, never a task.
+Rarely used → no alias; document the canonical `ros2 …` command.
 
-## Level 1 — lifecycle tasks (must exist in every workspace)
+## Level 1 — generic tasks (exist in every workspace)
 
 | Task | Meaning | Rules |
 |---|---|---|
 | `setup` | fetch/prepare sources beyond pixi itself (`vcs import`, fetch scripts) | idempotent and cached (canonical shape below); safe to re-run; chained by `build` |
-| `build` | build the workspace's default lane with colcon | `depends-on = ["setup"]`; style flags come from `config/colcon-defaults.yaml`, only semantic selection flags (`--packages-skip-regex`, `--packages-up-to`) appear inline |
+| `build` | build the workspace's default libraries with colcon | `depends-on = ["setup"]`; style flags come from `config/colcon-defaults.yaml`, only semantic selection flags (`--packages-skip-regex`, `--packages-up-to`) appear inline |
 | `test` | run the workspace's tests, linters excluded | `colcon test … --ctest-args -LE linter`; omit only if the workspace truly has no tests |
 | `clean` | wipe the colcon overlay | exactly `rm -rf build install log`; never touches `src/` or `.pixi/` |
 | `doctor` | workspace health check (`scripts/doctor.sh`) | checks: workspace root, env active, `/opt/ros` contamination (hard fail), sources imported, overlay built + sourced, `hc` on `PATH`, `ROS_DOMAIN_ID`; warnings for fixable, non-zero for fatal |
 
-Day-one ritual is one command: `pixi run build` (pixi self-heals the
-env; `setup` is chained and cached), verified by `pixi run doctor`.
+Common setup procedure is one command: `pixi run build` (pixi self-heals the env; `setup` is chained and cached), verified by `pixi run doctor`.
 
-Archetype-local extras are allowed (with descriptions), never required
-of other workspaces — dev workspace: `build-all`, `test-result`
+Archetype-local extras are allowed (with descriptions), never required of other workspaces — dev workspace: `build-all`, `test-result`
 (singular, matches the colcon verb), `lint` (= `.githooks/pre-commit
 --all`), `check` (= `test` + `lint`), `gen-dds`, `test-dds`; buildfarm
 manifest: `setup` (hidden `_import` + `_overlay`), `package`, `publish`
