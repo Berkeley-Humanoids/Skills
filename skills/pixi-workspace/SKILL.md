@@ -6,12 +6,11 @@ description: Use when creating, editing, or reviewing pixi.toml manifests, pixi 
 # Pixi workspace interface
 
 Every Berkeley Humanoids pixi workspace exposes the same three-level
-command interface. Ratified 2026-07-05; the full RFC (rationale,
-research base, RFC-2119 normative text, migration history) is at
-[references/pixi_interface_protocol.md](references/pixi_interface_protocol.md);
-durable summaries live in the dev tree's `AGENTS.md` ("Command interface
-(three levels)") and the public walkthrough in
-`Humanoid-Control-Website/docs/how_to/use_pixi_tasks.md`.
+command interface. Ratified 2026-07-05; durable rationale lives in the
+dev tree's `AGENTS.md` ("Command interface (three levels)") and the
+public walkthrough in `Humanoid-Control-Website/docs/how_to/use_pixi_tasks.md`;
+the full RFC is preserved in this skill's introducing PR
+(Berkeley-Humanoids/Skills#1).
 
 ## The three levels
 
