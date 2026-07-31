@@ -1,0 +1,4 @@
+interface:
+  display_name: "STE Writing"
+  short_description: "Simplified Technical English for software documentation"
+  default_prompt: "Use $ste-writing to rewrite this documentation in clear Simplified Technical English."
