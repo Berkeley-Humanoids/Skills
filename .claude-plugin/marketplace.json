@@ -5,18 +5,20 @@
         "email": "tk233.xyz@gmail.com"
     },
     "metadata": {
-        "description": "Berkeley Humanoids organization skills",
-        "version": "0.1.0"
+        "description": "For robotics and engineering related tasks.",
+        "version": "0.2.0"
     },
     "plugins": [
         {
             "name": "berkeley-humanoids-skills",
-            "description": "Berkeley Humanoids organization skills",
+            "description": "For robotics and engineering related tasks.",
             "source": "./",
             "strict": false,
             "skills": [
+                "./skills/paper-figure-presentation",
+                "./skills/pixi-workspace",
                 "./skills/robotics-conventions",
-                "./skills/pixi-workspace"
+                "./skills/ste-writing"
             ]
         }
     ]
