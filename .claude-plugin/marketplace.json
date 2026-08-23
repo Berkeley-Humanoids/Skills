@@ -6,7 +6,7 @@
     },
     "metadata": {
         "description": "For robotics and engineering related tasks.",
-        "version": "0.2.0"
+        "version": "0.3.0"
     },
     "plugins": [
         {
@@ -15,6 +15,7 @@
             "source": "./",
             "strict": false,
             "skills": [
+                "./skills/clean-coding",
                 "./skills/paper-figure-presentation",
                 "./skills/pixi-workspace",
                 "./skills/robotics-conventions",
