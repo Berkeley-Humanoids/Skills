@@ -1,16 +1,35 @@
 # Skills
 
-### Install in Claude Code
+## Install
 
-You can register this repository as a Claude Code Plugin marketplace by running the following command in Claude Code:
+1. Add the marketplace.
 
-```bash
-/plugin marketplace add Berkeley-Humanoids/Skills
-```
+   ```
+   /plugin marketplace add Berkeley-Humanoids/Skills
+   ```
 
-Then, to install a specific set of skills:
+2. Install plugins.
 
-1. Select Browse and install plugins
-2. Select anthropic-agent-skills
-3. Select document-skills or example-skills
-4. Select Install now
+   ```
+   /plugin install berkeley-humanoids-skills@berkeley-humanoids-skills
+   ```
+
+## Upgrade an installed version
+
+The plugin tracks this repository, so the marketplace refresh also moves
+the installed plugin to the current commit:
+
+1. Update the marketplace.
+
+   ```
+   /plugin marketplace update berkeley-humanoids-skills
+   ```
+
+2. Restart Claude Code. The new version applies after the restart.
+
+`claude plugin list` prints the installed version of each plugin as a
+commit hash.
+
+## License
+
+CC0 1.0 Universal. See [LICENSE](LICENSE).
