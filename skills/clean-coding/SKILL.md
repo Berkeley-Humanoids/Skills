@@ -63,6 +63,7 @@ Docstrings are brief API overviews, not walkthroughs. State only purpose and non
 ## Dead code and structured config
 
 - No commented-out code, superseded branches, unused parameters, or compatibility paths kept "just in case". Version control holds history.
+- Delete `from __future__ import annotations` unless the module needs deferred evaluation, such as annotations that reference `TYPE_CHECKING`-only imports.
 - In JSON/YAML/TOML/URDF/MJCF and similar files, add only fields consumed by the program, defined by the schema, or requested by the user.
 - Never invent metadata such as `_note`, `reason`, `changed_from`, `old_value`, or `migration_note` to preserve conversation history.
 
