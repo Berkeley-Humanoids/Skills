@@ -15,7 +15,7 @@ description: Use for robotics / robot-learning code when handling frames, units,
 
 - Use scalar-first quaternion order: `(qw, qx, qy, qz)`.
   - Normalize quaternions before storing or applying them.
-  - Convert explicitly at library/message boundaries when another order is required.
+  - Convert explicitly at library/message boundaries when another order is required (e.g. in ROS 2).
 
 - Use REP-103 robot frames: `x` forward, `y` left, `z` up, right-handed.
   - Blender and Onshape use `y` forward, `z` up.
@@ -35,7 +35,7 @@ description: Use for robotics / robot-learning code when handling frames, units,
   - Example: left arm shoulder-to-hand, right arm shoulder-to-hand, left leg hip-to-foot, right leg hip-to-foot.
   - Keep the ordering defined in one source of truth and reference it everywhere.
 
-- Use and reference ROS 2 documentation, not ROS 1 documentation.
+- For ROS 2 or ros2_control code, use the `ros2-standard-code` skill.
 
 - Prefer environment managers:
   - `uv` for Python environments.
