@@ -1,7 +1,6 @@
 ---
 name: ros2-standard-code
 description: Explicit-use-only reference for designing, implementing, and reviewing ROS 2 and ros2_control code against official standards and established community conventions.
-disable-model-invocation: true
 ---
 
 # ROS 2 Standard Coding
